@@ -1,0 +1,16 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="SampleApp/SampleApp.csproj" Id="f1a4971c-02bf-4144-bcac-73717fb671d2">
+    <Platform Project="x64" />
+    <Deploy />
+  </Project>
+  <Project Path="SuGarToolkit.WinUI3.Controls.Windows/SuGarToolkit.WinUI3.Controls.Windows.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+</Solution>
