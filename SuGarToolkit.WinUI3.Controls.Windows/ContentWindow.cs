@@ -172,7 +172,7 @@ public partial class ContentWindow : ContentControl
         set => Window.AppWindow.TitleBar.PreferredHeightOption = value;
     }
 
-    public Window Owner
+    public Window? Owner
     {
         get => field;
         set
@@ -193,7 +193,7 @@ public partial class ContentWindow : ContentControl
     public void Show()
     {
         _shouldShow = true;
-        if (!SizeToContent || IsLoaded)
+        if (IsLoaded)
         {
             Window.AppWindow.Show();
         }
@@ -253,11 +253,22 @@ public partial class ContentWindow : ContentControl
     public void Resize(Size size)
     {
         double dpiScale = (double) PInvoke.GetDpiForWindow(_hwnd) / 96;
-        Window.AppWindow.ResizeClient(new SizeInt32
-        (
-            _Width: IsValidLength(size.Width) ? (int) Math.Ceiling(size.Width * dpiScale) : Window.AppWindow.ClientSize.Width,
-            _Height: IsValidLength(size.Height) ? (int) Math.Ceiling((size.Height - 30) * dpiScale) : Window.AppWindow.ClientSize.Height
-        ));
+        if (Window.ExtendsContentIntoTitleBar)
+        {
+            Window.AppWindow.ResizeClient(new SizeInt32
+            (
+                _Width: IsValidLength(size.Width) ? (int) Math.Ceiling(size.Width * dpiScale) : Window.AppWindow.ClientSize.Width,
+                _Height: IsValidLength(size.Height) ? (int) Math.Ceiling((size.Height - 30) * dpiScale) : Window.AppWindow.ClientSize.Height
+            ));
+        }
+        else
+        {
+            Window.AppWindow.ResizeClient(new SizeInt32
+            (
+                _Width: IsValidLength(size.Width) ? (int) Math.Ceiling(size.Width * dpiScale) : Window.AppWindow.ClientSize.Width,
+                _Height: IsValidLength(size.Height) ? (int) Math.Ceiling(size.Height * dpiScale) : Window.AppWindow.ClientSize.Height
+            ));
+        }
     }
 
     public void ResizeToContent()
@@ -309,9 +320,12 @@ public partial class ContentWindow : ContentControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (_shouldShow && SizeToContent)
+        if (SizeToContent)
         {
             ResizeToContent();
+        }
+        if (_shouldShow)
+        {
             Show();
         }
     }

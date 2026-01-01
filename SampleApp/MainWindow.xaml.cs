@@ -36,6 +36,11 @@ public partial class MainWindow : ContentWindow
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-        OpacityStoryboard.Begin();
+        new SampleCustomWindow
+        {
+            Content = "SampleCustomWindow",
+            Owner = Window
+        }
+        .Show();
     }
 }
