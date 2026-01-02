@@ -41,6 +41,6 @@ public partial class MainWindow : ContentWindow
             Content = "SampleCustomWindow",
             Owner = Window
         }
-        .Show();
+        .ShowDialog();
     }
 }

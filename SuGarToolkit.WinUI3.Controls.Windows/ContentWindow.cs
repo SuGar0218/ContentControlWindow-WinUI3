@@ -124,6 +124,19 @@ public partial class ContentWindow : ContentControl
         typeof(ContentWindow),
         new PropertyMetadata(default(bool))
     );
+    
+    public WindowStartupLocation StartupLocation
+    {
+        get => (WindowStartupLocation) GetValue(StartupLocationProperty);
+        set => SetValue(StartupLocationProperty, value);
+    }
+
+    public static readonly DependencyProperty StartupLocationProperty = DependencyProperty.Register(
+        nameof(StartupLocation),
+        typeof(WindowStartupLocation),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(WindowStartupLocation))
+    );
 
     #endregion
 
@@ -190,13 +203,66 @@ public partial class ContentWindow : ContentControl
 
     private bool _shouldShow;
 
+    private bool _hasShown;
+
+    private void ShowImmediately()
+    {
+        if (!_hasShown)
+        {
+            _hasShown = true;
+            switch (StartupLocation)
+            {
+                case WindowStartupLocation.CenterScreen:
+                    MoveToCenterScreen();
+                    break;
+                case WindowStartupLocation.CenterOwner:
+                    MoveToCenterOwner();
+                    break;
+                default:
+                    break;
+            }
+        }
+        Window.AppWindow.Show();
+    }
+
+    private void MoveToCenterScreen()
+    {
+        DisplayArea displayArea = DisplayArea.GetFromWindowId(Window.AppWindow.Id, DisplayAreaFallback.Primary);
+        Window.AppWindow.Move(new PointInt32(
+            (displayArea.OuterBounds.Width - Window.AppWindow.Size.Width) / 2,
+            (displayArea.OuterBounds.Height - Window.AppWindow.Size.Height) / 2)
+        );
+    }
+
+    private void MoveToCenterOwner()
+    {
+        if (Owner is null)
+        {
+            MoveToCenterScreen();
+            return;
+        }
+        Window.AppWindow.Move(new PointInt32(
+            Owner.AppWindow.Position.X + (Owner.AppWindow.Size.Width - Window.AppWindow.Size.Width) / 2,
+            Owner.AppWindow.Position.Y + (Owner.AppWindow.Size.Height - Window.AppWindow.Size.Height) / 2)
+        );
+    }
+
     public void Show()
     {
         _shouldShow = true;
         if (IsLoaded)
         {
-            Window.AppWindow.Show();
+            ShowImmediately();
         }
+    }
+
+    public void ShowDialog()
+    {
+        if (Owner is not null)
+        {
+            (Window.AppWindow.Presenter as OverlappedPresenter)?.IsModal = true;
+        }
+        Show();
     }
 
     public void Hide()
@@ -212,7 +278,7 @@ public partial class ContentWindow : ContentControl
     public bool TryMinimize()
     {
         CancelEventArgs e = new(false);
-        OnMaximizing(e);
+        OnMinimizing(e);
         if (e.Cancel)
             return false;
         (Window.AppWindow.Presenter as OverlappedPresenter)?.Maximize();
@@ -232,7 +298,7 @@ public partial class ContentWindow : ContentControl
     public bool TryRestore()
     {
         CancelEventArgs e = new(false);
-        OnMaximizing(e);
+        OnRestoring(e);
         if (e.Cancel)
             return false;
         (Window.AppWindow.Presenter as OverlappedPresenter)?.Restore();
@@ -242,12 +308,32 @@ public partial class ContentWindow : ContentControl
     public bool TryClose()
     {
         CancelEventArgs e = new(false);
-        OnMaximizing(e);
+        OnClosing(e);
         if (e.Cancel)
             return false;
         Window.AppWindow.Hide();
         Window.Close();
         return true;
+    }
+
+    public void EnterFullscreen()
+    {
+        if (Window.AppWindow.Presenter.Kind is not AppWindowPresenterKind.FullScreen)
+        {
+            Window.AppWindow.SetPresenter(AppWindowPresenterKind.FullScreen);
+        }
+    }
+
+    public void ExitFullscreen()
+    {
+        if (Window.AppWindow.Presenter.Kind is AppWindowPresenterKind.FullScreen)
+        {
+            OverlappedPresenter presenter = OverlappedPresenter.Create();
+            presenter.IsMinimizable = CanMinimize;
+            presenter.IsMaximizable = CanMaximize;
+            presenter.IsResizable = CanResize;
+            Window.AppWindow.SetPresenter(presenter);
+        }
     }
 
     public void Resize(Size size)
@@ -273,7 +359,7 @@ public partial class ContentWindow : ContentControl
 
     public void ResizeToContent()
     {
-        Resize(DesiredSize);
+        Resize(new Size(DesiredSize.Width + 1, DesiredSize.Height + 1));
     }
 
     public void AddSubclassProc(WindowSubclassProc proc)
@@ -326,7 +412,7 @@ public partial class ContentWindow : ContentControl
         }
         if (_shouldShow)
         {
-            Show();
+            ShowImmediately();
         }
     }
 
@@ -406,6 +492,8 @@ public partial class ContentWindow : ContentControl
 
     private void OnWindowClosed(object sender, WindowEventArgs args)
     {
+        (Window.AppWindow.Presenter as OverlappedPresenter)?.IsModal = false;
+        Owner?.Activate();
         Closed?.Invoke(this, EventArgs.Empty);
     }
 
