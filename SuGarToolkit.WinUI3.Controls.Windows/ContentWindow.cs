@@ -36,7 +36,11 @@ public partial class ContentWindow : ContentControl
         Window.Closed += OnWindowClosed;
         Window.Content = this;
         Loaded += OnLoaded;
-        RegisterPropertyChangedCallback(RequiresPointerProperty, OnRequestedThemeChanged);
+        RegisterPropertyChangedCallback(MinWidthProperty, OnMinWidthChanged);
+        RegisterPropertyChangedCallback(MaxWidthProperty, OnMaxWidthChanged);
+        RegisterPropertyChangedCallback(MinHeightProperty, OnMinHeightChanged);
+        RegisterPropertyChangedCallback(MaxHeightProperty, OnMaxHeightChanged);
+        RegisterPropertyChangedCallback(RequestedThemeProperty, OnRequestedThemeChanged);
     }
 
     private readonly Window _window;
@@ -199,6 +203,8 @@ public partial class ContentWindow : ContentControl
         }
     }
 
+    public double DpiScale => IsLoaded ? XamlRoot.RasterizationScale : (double) PInvoke.GetDpiForWindow(_hwnd) / 96;
+
     public static Window? GetWindow(UIElement element) => (element.XamlRoot.Content as ContentWindow)?.Window;
 
     private bool _shouldShow;
@@ -223,6 +229,7 @@ public partial class ContentWindow : ContentControl
             }
         }
         Window.AppWindow.Show();
+        Activate();
     }
 
     private void MoveToCenterScreen()
@@ -338,21 +345,20 @@ public partial class ContentWindow : ContentControl
 
     public void Resize(Size size)
     {
-        double dpiScale = (double) PInvoke.GetDpiForWindow(_hwnd) / 96;
         if (Window.ExtendsContentIntoTitleBar)
         {
             Window.AppWindow.ResizeClient(new SizeInt32
             (
-                _Width: IsValidLength(size.Width) ? (int) Math.Ceiling(size.Width * dpiScale) : Window.AppWindow.ClientSize.Width,
-                _Height: IsValidLength(size.Height) ? (int) Math.Ceiling((size.Height - 30) * dpiScale) : Window.AppWindow.ClientSize.Height
+                _Width: IsValidLength(size.Width) ? DipToPixel(size.Width) : Window.AppWindow.ClientSize.Width,
+                _Height: IsValidLength(size.Height) ? DipToPixel(size.Height - 30) : Window.AppWindow.ClientSize.Height
             ));
         }
         else
         {
             Window.AppWindow.ResizeClient(new SizeInt32
             (
-                _Width: IsValidLength(size.Width) ? (int) Math.Ceiling(size.Width * dpiScale) : Window.AppWindow.ClientSize.Width,
-                _Height: IsValidLength(size.Height) ? (int) Math.Ceiling(size.Height * dpiScale) : Window.AppWindow.ClientSize.Height
+                _Width: IsValidLength(size.Width) ? DipToPixel(size.Width) : Window.AppWindow.ClientSize.Width,
+                _Height: IsValidLength(size.Height) ? DipToPixel(size.Height) : Window.AppWindow.ClientSize.Height
             ));
         }
     }
@@ -497,6 +503,30 @@ public partial class ContentWindow : ContentControl
         Closed?.Invoke(this, EventArgs.Empty);
     }
 
+    private void OnMinWidthChanged(DependencyObject d, DependencyProperty p)
+    {
+        double minWidth = (double) d.GetValue(p);
+        (Window.AppWindow.Presenter as OverlappedPresenter)?.PreferredMinimumWidth = DipToPixel(minWidth);
+    }
+
+    private void OnMaxWidthChanged(DependencyObject d, DependencyProperty p)
+    {
+        double maxWidth = (double) d.GetValue(p);
+        (Window.AppWindow.Presenter as OverlappedPresenter)?.PreferredMaximumWidth = DipToPixel(maxWidth);
+    }
+
+    private void OnMinHeightChanged(DependencyObject d, DependencyProperty p)
+    {
+        double minHeight = (double) d.GetValue(p);
+        (Window.AppWindow.Presenter as OverlappedPresenter)?.PreferredMinimumHeight = DipToPixel(minHeight);
+    }
+
+    private void OnMaxHeightChanged(DependencyObject d, DependencyProperty p)
+    {
+        double maxHeight = (double) d.GetValue(p);
+        (Window.AppWindow.Presenter as OverlappedPresenter)?.PreferredMaximumHeight = DipToPixel(maxHeight);
+    }
+
     private void OnRequestedThemeChanged(DependencyObject d, DependencyProperty p)
     {
         ElementTheme theme = (ElementTheme) d.GetValue(p);
@@ -556,4 +586,6 @@ public partial class ContentWindow : ContentControl
         }
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
+
+    private int DipToPixel(double dip) => (int) Math.Ceiling(dip * DpiScale);
 }
