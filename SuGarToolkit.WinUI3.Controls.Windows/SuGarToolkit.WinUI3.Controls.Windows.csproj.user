@@ -4,6 +4,11 @@
     <_LastSelectedProfileId>D:\Documents\Code\C#\WinUI3\SuGarToolkit\ContentControlWindow\SuGarToolkit.WinUI3.Controls.Windows\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
   <ItemGroup>
+    <Page Update="ContentWindow_themeresources.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="ContentWindow.xaml">
       <SubType>Designer</SubType>
     </Page>

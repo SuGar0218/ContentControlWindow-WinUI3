@@ -9,6 +9,7 @@ using System.ComponentModel;
 
 using Windows.Foundation;
 using Windows.Graphics;
+using Windows.UI;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Shell;
@@ -29,18 +30,32 @@ public partial class ContentWindow : ContentControl
         _subclassProcHelper = new WindowSubclassProcHelper(_hwnd);
         _baseSubclassProc = BaseSubclassProc;
         PInvoke.SetWindowSubclass(_hwnd, _baseSubclassProc, 314159, 0);
+        Loaded += OnLoaded;
+        ActualThemeChanged += OnActualThemeChanged;
         Window.AppWindow.Changed += OnAppWindowStateChanged;
         Window.AppWindow.Closing += OnAppWindowClosing;
         Window.AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
         Window.Activated += OnWindowActivated;
         Window.Closed += OnWindowClosed;
         Window.Content = this;
-        Loaded += OnLoaded;
         RegisterPropertyChangedCallback(MinWidthProperty, OnMinWidthChanged);
         RegisterPropertyChangedCallback(MaxWidthProperty, OnMaxWidthChanged);
         RegisterPropertyChangedCallback(MinHeightProperty, OnMinHeightChanged);
         RegisterPropertyChangedCallback(MaxHeightProperty, OnMaxHeightChanged);
         RegisterPropertyChangedCallback(RequestedThemeProperty, OnRequestedThemeChanged);
+    }
+
+    private void OnActualThemeChanged(FrameworkElement sender, object args)
+    {
+        switch (ActualTheme)
+        {
+            case ElementTheme.Light:
+                break;
+            case ElementTheme.Dark:
+                break;
+            default:
+                break;
+        }
     }
 
     private readonly Window _window;
@@ -142,6 +157,136 @@ public partial class ContentWindow : ContentControl
         new PropertyMetadata(default(WindowStartupLocation))
     );
 
+    public string? Title
+    {
+        get => (string?) GetValue(TitleProperty);
+        set => SetValue(TitleProperty, value);
+    }
+
+    public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(
+        nameof(Title),
+        typeof(string),
+        typeof(ContentWindow),
+        new PropertyMetadata(string.Empty, OnTitleChanged)
+    );
+
+    public SystemBackdrop? SystemBackdrop
+    {
+        get => (SystemBackdrop?) GetValue(SystemBackdropProperty);
+        set => SetValue(SystemBackdropProperty, value);
+    }
+
+    public static readonly DependencyProperty SystemBackdropProperty = DependencyProperty.Register(
+        nameof(SystemBackdrop),
+        typeof(SystemBackdrop),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(SystemBackdrop), OnSystemBackdropChanged)
+    );
+
+    public bool ExtendsContentIntoTitleBar
+    {
+        get => (bool) GetValue(ExtendsContentIntoTitleBarProperty);
+        set => SetValue(ExtendsContentIntoTitleBarProperty, value);
+    }
+
+    public static readonly DependencyProperty ExtendsContentIntoTitleBarProperty = DependencyProperty.Register(
+        nameof(ExtendsContentIntoTitleBar),
+        typeof(bool),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(bool), OnExtendsContentIntoTitleBarChanged)
+    );
+
+    public TitleBarHeightOption TitleBarHeightOption
+    {
+        get => (TitleBarHeightOption) GetValue(TitleBarHeightOptionProperty);
+        set => SetValue(TitleBarHeightOptionProperty, value);
+    }
+
+    public static readonly DependencyProperty TitleBarHeightOptionProperty = DependencyProperty.Register(
+        nameof(TitleBarHeightOption),
+        typeof(TitleBarHeightOption),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(TitleBarHeightOption), OnTitleBarHeightOptionChanged)
+    );
+
+    public Color? TitleBarButtonBackgroundColor
+    {
+        get => (Color?) GetValue(TitleBarButtonBackgroundColorProperty);
+        set => SetValue(TitleBarButtonBackgroundColorProperty, value);
+    }
+
+    public static readonly DependencyProperty TitleBarButtonBackgroundColorProperty = DependencyProperty.Register(
+        nameof(TitleBarButtonBackgroundColor),
+        typeof(Color?),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(Color?), OnTitleBarButtonBackgroundColorChanged)
+    );
+
+    public Color? TitleBarButtonForegroundColor
+    {
+        get => (Color?) GetValue(TitleBarButtonForegroundColorProperty);
+        set => SetValue(TitleBarButtonForegroundColorProperty, value);
+    }
+
+    public static readonly DependencyProperty TitleBarButtonForegroundColorProperty = DependencyProperty.Register(
+        nameof(TitleBarButtonForegroundColor),
+        typeof(Color?),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(Color?), OnTitleBarButtonForegroundColorChanged)
+    );
+
+    public Color? TitleBarButtonHoverBackgroundColor
+    {
+        get => (Color?) GetValue(TitleBarButtonHoverBackgroundColorProperty);
+        set => SetValue(TitleBarButtonHoverBackgroundColorProperty, value);
+    }
+
+    public static readonly DependencyProperty TitleBarButtonHoverBackgroundColorProperty = DependencyProperty.Register(
+        nameof(TitleBarButtonHoverBackgroundColor),
+        typeof(Color?),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(Color?), OnTitleBarButtonHoverBackgroundColorChanged)
+    );
+
+    public Color? TitleBarButtonHoverForegroundColor
+    {
+        get => (Color?) GetValue(TitleBarButtonHoverForegroundColorProperty);
+        set => SetValue(TitleBarButtonHoverForegroundColorProperty, value);
+    }
+
+    public static readonly DependencyProperty TitleBarButtonHoverForegroundColorProperty = DependencyProperty.Register(
+        nameof(TitleBarButtonHoverForegroundColor),
+        typeof(Color?),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(Color?), OnTitleBarButtonHoverForegroundColorChanged)
+    );
+
+    public Color? TitleBarButtonPressedBackgroundColor
+    {
+        get => (Color?) GetValue(TitleBarButtonPressedBackgroundColorProperty);
+        set => SetValue(TitleBarButtonPressedBackgroundColorProperty, value);
+    }
+
+    public static readonly DependencyProperty TitleBarButtonPressedBackgroundColorProperty = DependencyProperty.Register(
+        nameof(TitleBarButtonPressedBackgroundColor),
+        typeof(Color?),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(Color?), OnTitleBarButtonPressedBackgroundColorChanged)
+    );
+
+    public Color? TitleBarButtonPressedForegroundColor
+    {
+        get => (Color?) GetValue(TitleBarButtonPressedForegroundColorProperty);
+        set => SetValue(TitleBarButtonPressedForegroundColorProperty, value);
+    }
+
+    public static readonly DependencyProperty TitleBarButtonPressedForegroundColorProperty = DependencyProperty.Register(
+        nameof(TitleBarButtonPressedForegroundColor),
+        typeof(Color?),
+        typeof(ContentWindow),
+        new PropertyMetadata(default(Color?), OnTitleBarButtonPressedForegroundColorChanged)
+    );
+
     #endregion
 
     public event EventHandler? StateChanged;
@@ -163,30 +308,6 @@ public partial class ContentWindow : ContentControl
             field = value;
             StateChanged?.Invoke(this, EventArgs.Empty);
         }
-    }
-
-    public string Title
-    {
-        get => Window.Title;
-        set => Window.Title = value;
-    }
-
-    public SystemBackdrop? SystemBackdrop
-    {
-        get => Window.SystemBackdrop;
-        set => Window.SystemBackdrop = value;
-    }
-
-    public bool ExtendsContentIntoTitleBar
-    {
-        get => Window.ExtendsContentIntoTitleBar;
-        set => Window.ExtendsContentIntoTitleBar = value;
-    }
-
-    public TitleBarHeightOption TitleBarHeightOption
-    {
-        get => Window.AppWindow.TitleBar.PreferredHeightOption;
-        set => Window.AppWindow.TitleBar.PreferredHeightOption = value;
     }
 
     public Window? Owner
@@ -407,6 +528,7 @@ public partial class ContentWindow : ContentControl
 
     private void OnAppWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
     {
+        Owner?.Activate();
         sender.Hide();
     }
 
@@ -461,6 +583,73 @@ public partial class ContentWindow : ContentControl
         (self.Window.AppWindow.Presenter as OverlappedPresenter)?.IsResizable = canResize;
     }
 
+    private static void OnTitleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        if (e.NewValue is null)
+        {
+            self.Window.Title = string.Empty;
+        }
+        else
+        {
+            self.Window.Title = (string) e.NewValue;
+        }
+    }
+
+    private static void OnSystemBackdropChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        self.Window.SystemBackdrop = (SystemBackdrop?) e.NewValue;
+    }
+
+    private static void OnExtendsContentIntoTitleBarChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        self.Window.ExtendsContentIntoTitleBar = (bool) e.NewValue;
+    }
+    
+    private static void OnTitleBarHeightOptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        self.Window.AppWindow.TitleBar.PreferredHeightOption = (TitleBarHeightOption) e.NewValue;
+    }
+    
+    private static void OnTitleBarButtonBackgroundColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        self.Window.AppWindow.TitleBar.ButtonBackgroundColor = (Color?) e.NewValue;
+    }
+    
+    private static void OnTitleBarButtonForegroundColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        self.Window.AppWindow.TitleBar.ButtonForegroundColor = (Color?) e.NewValue;
+    }
+    
+    private static void OnTitleBarButtonHoverBackgroundColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        self.Window.AppWindow.TitleBar.ButtonHoverBackgroundColor = (Color?) e.NewValue;
+    }
+    
+    private static void OnTitleBarButtonHoverForegroundColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        self.Window.AppWindow.TitleBar.ButtonHoverForegroundColor = (Color?) e.NewValue;
+    }
+    
+    private static void OnTitleBarButtonPressedBackgroundColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        self.Window.AppWindow.TitleBar.ButtonPressedBackgroundColor = (Color?) e.NewValue;
+    }
+    
+    private static void OnTitleBarButtonPressedForegroundColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        ContentWindow self = (ContentWindow) d;
+        self.Window.AppWindow.TitleBar.ButtonPressedForegroundColor = (Color?) e.NewValue;
+    }
+
     private void OnAppWindowStateChanged(AppWindow sender, AppWindowChangedEventArgs args)
     {
         if (args.DidSizeChange)
@@ -499,7 +688,6 @@ public partial class ContentWindow : ContentControl
     private void OnWindowClosed(object sender, WindowEventArgs args)
     {
         (Window.AppWindow.Presenter as OverlappedPresenter)?.IsModal = false;
-        Owner?.Activate();
         Closed?.Invoke(this, EventArgs.Empty);
     }
 

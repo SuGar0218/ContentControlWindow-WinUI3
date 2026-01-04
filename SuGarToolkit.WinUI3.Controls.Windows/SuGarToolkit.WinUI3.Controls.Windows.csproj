@@ -10,7 +10,7 @@
 		<Platforms>AnyCPU;x64</Platforms>
 		<Nullable>enable</Nullable>
 		<LangVersion>preview</LangVersion>
-		<Version>0.0.1-dev202601031447</Version>
+		<Version>0.0.1-dev202601041334</Version>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 	  <IsAotCompatible>True</IsAotCompatible>
@@ -26,6 +26,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="ContentWindow.xaml" />
+	  <None Remove="ContentWindow_themeresources.xaml" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.264">
@@ -35,6 +36,11 @@
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="ContentWindow_themeresources.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="ContentWindow.xaml">
